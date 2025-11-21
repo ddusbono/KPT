@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KPT 회고</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --primary: #2f6fed;
+        --primary-hover: #5f8df7;
+        --keep-bg: #e8f5e9;
+        --keep-border: #4caf50;
+        --problem-bg: #ffebee;
+        --problem-border: #f44336;
+        --try-bg: #e3f2fd;
+        --try-border: #2196f3;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        background: #f4f6fb;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+      }
+
+      .user-info {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 14px;
+        color: #4b5666;
+      }
+
+      .user-name {
+        font-weight: 600;
+      }
+
+      .logout-btn {
+        padding: 8px 16px;
+        border: 1px solid #d7deea;
+        border-radius: 6px;
+        background: #fff;
+        color: #2f6fed;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .logout-btn:hover {
+        background: #f0f4ff;
+        border-color: #2f6fed;
+      }
+
+      h1 {
+        font-size: 32px;
+        margin: 0 0 10px;
+        color: #1e2a3b;
+        font-weight: 700;
+      }
+
+      .date-selector-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+        margin-bottom: 24px;
+        gap: 20px;
+        position: relative;
+      }
+
+      .date-selector {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 0 0 auto;
+        justify-content: center;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .header-actions:first-child {
+        visibility: hidden;
+      }
+
+      .date-input {
+        padding: 10px 15px;
+        border: 1px solid #d7deea;
+        border-radius: 8px;
+        font-size: 15px;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .date-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.15);
+      }
+
+      .sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+        min-height: 400px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid;
+      }
+
+      .section.keep .section-header {
+        border-color: var(--keep-border);
+        color: #2e7d32;
+      }
+
+      .section.problem .section-header {
+        border-color: var(--problem-border);
+        color: #c62828;
+      }
+
+      .section.try .section-header {
+        border-color: var(--try-border);
+        color: #1565c0;
+      }
+
+      .section-icon {
+        font-size: 24px;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .section-count {
+        margin-left: auto;
+        background: rgba(0, 0, 0, 0.1);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .section-action-btn {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+      }
+
+      .section-action-btn:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.05);
+        transform: scale(1.1);
+      }
+
+      .section.try .section-action-btn {
+        color: #1565c0;
+      }
+
+      .section.try .section-action-btn:hover {
+        background: rgba(33, 150, 243, 0.1);
+      }
+
+      .items-list {
+        flex: 1;
+        min-height: 200px;
+      }
+
+      .item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .item-text {
+        flex: 1;
+        font-size: 15px;
+        line-height: 1.5;
+        color: #2c3e50;
+        word-break: break-word;
+      }
+
+      .item-delete {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+
+      .item-delete:hover {
+        background: rgba(220, 53, 69, 0.1);
+      }
+
+      .add-form {
+        margin-top: 15px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .add-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .add-input:focus {
+        border-color: var(--primary);
+      }
+
+      .add-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.2s;
+        white-space: nowrap;
+      }
+
+      .section.keep .add-btn {
+        background: var(--keep-border);
+        color: #fff;
+      }
+
+      .section.problem .add-btn {
+        background: var(--problem-border);
+        color: #fff;
+      }
+
+      .section.try .add-btn {
+        background: var(--try-border);
+        color: #fff;
+      }
+
+      .add-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9e9e9e;
+        font-size: 14px;
+      }
+
+      .header-actions .btn {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 2px solid;
+        border-radius: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        font-weight: normal;
+      }
+
+      .header-actions .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        border-color: var(--primary);
+        color: #fff;
+      }
+
+      .header-actions .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #7a8288);
+        border-color: #6c757d;
+        color: #fff;
+      }
+
+      .header-actions .btn-success {
+        background: linear-gradient(135deg, #28a745, #34ce57);
+        border-color: #28a745;
+        color: #fff;
+      }
+
+      .header-actions .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #e4606d);
+        border-color: #dc3545;
+        color: #fff;
+      }
+
+      .header-actions .btn:hover {
+        transform: translateY(-3px) scale(1.08);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        border-width: 2px;
+      }
+
+      .header-actions .btn:active {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .header-actions .btn[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 1000;
+        pointer-events: none;
+      }
+
+      .header-actions .btn[title]:hover::before {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-bottom-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        pointer-events: none;
+      }
+
+      .bottom-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-top: 40px;
+      }
+
+      .date-manager {
+        padding: 24px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .date-manager h3 {
+        margin: 0 0 20px;
+        color: #1e2a3b;
+        font-size: 20px;
+      }
+
+      .date-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .date-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .date-item-info {
+        flex: 1;
+      }
+
+      .date-item-date {
+        font-weight: 600;
+        color: #1e2a3b;
+        font-size: 14px;
+      }
+
+      .date-item-count {
+        font-size: 12px;
+        color: #6b778c;
+        margin-top: 4px;
+      }
+
+      .date-item-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .date-item-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .date-item-btn-copy {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+
+      .date-item-btn-delete {
+        background: #ffebee;
+        color: #f44336;
+      }
+
+      .date-item-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: #28a745;
+        color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+        display: none;
+      }
+
+      .toast.show {
+        display: block;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .todo-section {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .todo-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #2196f3;
+      }
+
+      .todo-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1565c0;
+        margin: 0;
+      }
+
+      .todo-stats {
+        font-size: 14px;
+        color: #6b778c;
+      }
+
+      .todo-list {
+        margin-bottom: 20px;
+        min-height: 100px;
+      }
+
+      .todo-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+      }
+
+      .todo-item:hover {
+        background: #e9ecef;
+        transform: translateX(4px);
+      }
+
+      .todo-item.completed {
+        opacity: 0.6;
+      }
+
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: #6b778c;
+      }
+
+      .todo-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #2196f3;
+      }
+
+      .todo-text {
+        flex: 1;
+        font-size: 15px;
+        color: #2c3e50;
+        word-break: break-word;
+      }
+
+      .todo-delete {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+
+      .todo-delete:hover {
+        background: rgba(220, 53, 69, 0.1);
+      }
+
+      .todo-add-form {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+
+      .todo-add-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .todo-add-input:focus {
+        border-color: #2196f3;
+      }
+
+      .todo-add-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        background: #2196f3;
+        color: #fff;
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.2s;
+        white-space: nowrap;
+      }
+
+      .todo-add-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+      }
+
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0f1728;
+        }
+
+        .section {
+          background: #1b2539;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+          color: #f8f9fc;
+        }
+
+        .date-input {
+          background: #131c2f;
+          border-color: #2d3a55;
+          color: #f8f9fc;
+        }
+
+
+        .item {
+          background: #131c2f;
+        }
+
+        .item-text {
+          color: #e0e6ed;
+        }
+
+        .add-input {
+          background: #131c2f;
+          border-color: #2d3a55;
+          color: #f8f9fc;
+        }
+
+        .empty-state {
+          color: #6b778c;
+        }
+
+        .user-info {
+          color: #c0c8d8;
+        }
+
+        .logout-btn {
+          background: #131c2f;
+          border-color: #2d3a55;
+          color: #5f8df7;
+        }
+
+        .logout-btn:hover {
+          background: #1b2539;
+          border-color: #5f8df7;
+        }
+
+        .date-manager {
+          background: #1b2539;
+        }
+
+        .date-manager h3 {
+          color: #f8f9fc;
+        }
+
+        .date-item {
+          background: #131c2f;
+          border-color: #2d3a55;
+        }
+
+        .date-item-date {
+          color: #f8f9fc;
+        }
+
+        .date-item-count {
+          color: #aab4ce;
+        }
+
+        .date-item-btn-copy {
+          background: #1b3a5e;
+          color: #5f8df7;
+        }
+
+        .date-item-btn-delete {
+          background: #4a1f1f;
+          color: #f44336;
+        }
+
+        .todo-section {
+          background: #1b2539;
+        }
+
+        .todo-header {
+          border-color: #2196f3;
+        }
+
+        .todo-title {
+          color: #5f8df7;
+        }
+
+        .todo-stats {
+          color: #aab4ce;
+        }
+
+        .todo-item {
+          background: #131c2f;
+        }
+
+        .todo-item:hover {
+          background: #1b2539;
+        }
+
+        .todo-item.completed .todo-text {
+          color: #6b778c;
+        }
+
+        .todo-text {
+          color: #e0e6ed;
+        }
+
+        .todo-add-input {
+          background: #131c2f;
+          border-color: #2d3a55;
+          color: #f8f9fc;
+        }
+
+        .section.try .section-action-btn {
+          color: #5f8df7;
+        }
+
+        .section.try .section-action-btn:hover {
+          background: rgba(95, 141, 247, 0.2);
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .user-info {
+          position: static;
+          justify-content: center;
+          margin-bottom: 10px;
+          flex-wrap: wrap;
+        }
+
+        .date-selector-wrapper {
+          flex-direction: column;
+          gap: 15px;
+          margin-top: 15px;
+        }
+
+        .date-selector {
+          position: static;
+          transform: none;
+          width: 100%;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .header-actions:first-child {
+          display: none;
+        }
+
+        .header-actions {
+          justify-content: center;
+          width: 100%;
+        }
+
+        .header-actions .btn {
+          width: 48px;
+          height: 48px;
+          font-size: 22px;
+        }
+
+        .date-input {
+          padding: 12px;
+          font-size: 16px; /* iOS 자동 줌 방지 */
+          width: 100%;
+        }
+
+        .sections {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
+        .section {
+          padding: 16px;
+          min-height: auto;
+        }
+
+        .section-header {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .section-title {
+          font-size: 18px;
+        }
+
+        .section-icon {
+          font-size: 20px;
+        }
+
+        .add-input, .todo-add-input {
+          padding: 14px;
+          font-size: 16px; /* iOS 자동 줌 방지 */
+        }
+
+        .add-btn, .todo-add-btn {
+          padding: 14px 20px;
+          font-size: 16px;
+        }
+
+        .item, .todo-item {
+          padding: 14px;
+        }
+
+        .item-text, .todo-text {
+          font-size: 15px;
+        }
+
+        .item-delete, .todo-delete {
+          width: 32px;
+          height: 32px;
+          font-size: 20px;
+        }
+
+        .bottom-sections {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .todo-section, .date-manager {
+          padding: 16px;
+        }
+
+        .todo-header {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .todo-title {
+          font-size: 18px;
+        }
+
+        .date-list {
+          grid-template-columns: 1fr;
+        }
+
+        .date-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .date-item-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        .actions {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .btn {
+          width: 100%;
+        }
+      }
+
+      /* 작은 모바일 (480px 이하) */
+      @media (max-width: 480px) {
+        body {
+          padding: 8px;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+
+        .section {
+          padding: 12px;
+        }
+
+        .header-actions .btn {
+          width: 44px;
+          height: 44px;
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="user-info" id="user-info" style="display: none;">
+          <span class="user-name" id="user-name"></span>
+          <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+        <h1>📝 KPT 회고</h1>
+        <div class="date-selector-wrapper">
+          <div class="header-actions"></div>
+          <div class="date-selector">
+            <label for="retro-date">회고 날짜:</label>
+            <input
+              type="date"
+              id="retro-date"
+              class="date-input"
+              value=""
+            />
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-success" onclick="copyToClipboard()" title="클립보드로 복사">
+              📋
+            </button>
+            <button class="btn btn-danger" onclick="clearAll()" title="현재 날짜 삭제">
+              🗑️
+            </button>
+            <button class="btn btn-primary" onclick="exportData()" title="데이터 내보내기">
+              💾
+            </button>
+            <button class="btn btn-primary" onclick="importData()" title="데이터 가져오기">
+              📥
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="sections">
+        <div class="section keep">
+          <div class="section-header">
+            <span class="section-icon">✅</span>
+            <h2 class="section-title">Keep (유지할 것)</h2>
+            <span class="section-count" id="keep-count">0</span>
+          </div>
+          <div class="items-list" id="keep-list"></div>
+          <div class="add-form">
+            <input
+              type="text"
+              class="add-input"
+              id="keep-input"
+              placeholder="잘 되고 있는 것을 입력하세요..."
+            />
+            <button class="add-btn" onclick="addItem('keep')">추가</button>
+          </div>
+        </div>
+
+        <div class="section problem">
+          <div class="section-header">
+            <span class="section-icon">⚠️</span>
+            <h2 class="section-title">Problem (문제점)</h2>
+            <span class="section-count" id="problem-count">0</span>
+          </div>
+          <div class="items-list" id="problem-list"></div>
+          <div class="add-form">
+            <input
+              type="text"
+              class="add-input"
+              id="problem-input"
+              placeholder="개선이 필요한 부분을 입력하세요..."
+            />
+            <button class="add-btn" onclick="addItem('problem')">추가</button>
+          </div>
+        </div>
+
+        <div class="section try">
+          <div class="section-header">
+            <span class="section-icon">🚀</span>
+            <h2 class="section-title">Try (시도할 것)</h2>
+            <button 
+              class="section-action-btn" 
+              onclick="convertTryToTodos()" 
+              title="Try 항목을 할일로 변환"
+            >
+              ➕
+            </button>
+            <span class="section-count" id="try-count">0</span>
+          </div>
+          <div class="items-list" id="try-list"></div>
+          <div class="add-form">
+            <input
+              type="text"
+              class="add-input"
+              id="try-input"
+              placeholder="새롭게 시도할 것을 입력하세요..."
+            />
+            <button class="add-btn" onclick="addItem('try')">추가</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-sections">
+        <div class="todo-section">
+          <div class="todo-header">
+            <h3 class="todo-title">
+              <span>📋</span>
+              오늘의 할일
+            </h3>
+            <div class="todo-stats" id="todo-stats">0개 중 0개 완료</div>
+          </div>
+          <div class="todo-list" id="todo-list"></div>
+          <div class="todo-add-form">
+            <input
+              type="text"
+              class="todo-add-input"
+              id="todo-input"
+              placeholder="할일을 입력하세요..."
+            />
+            <button class="todo-add-btn" onclick="addTodo()">추가</button>
+          </div>
+        </div>
+
+        <div class="date-manager">
+          <h3>📅 날짜별 데이터 관리</h3>
+          <div class="date-list" id="date-list"></div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">클립보드에 복사되었습니다!</div>
+    </div>
+
+    <script>
+      // 로그인 체크
+      function checkLogin() {
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+          alert('로그인이 필요합니다.');
+          window.location.href = 'login.html';
+          return false;
+        }
+
+        const user = JSON.parse(currentUser);
+        if (!user.loggedIn) {
+          alert('로그인이 필요합니다.');
+          window.location.href = 'login.html';
+          return false;
+        }
+
+        // 사용자 정보 표시
+        document.getElementById('user-name').textContent = `${user.name}님`;
+        document.getElementById('user-info').style.display = 'flex';
+        return true;
+      }
+
+      // 로그아웃
+      function logout() {
+        if (confirm('로그아웃 하시겠습니까?')) {
+          localStorage.removeItem('currentUser');
+          window.location.href = 'login.html';
+        }
+      }
+
+      // 로그인 체크 후 진행
+      if (!checkLogin()) {
+        // 로그인 페이지로 리다이렉트되므로 여기서 중단
+      }
+
+      // 오늘 날짜를 기본값으로 설정
+      document.getElementById('retro-date').valueAsDate = new Date();
+
+      // 데이터 구조 (사용자별로 저장)
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      const userId = currentUser ? currentUser.userId : 'guest';
+      
+      let kptData = {
+        date: new Date().toISOString().split('T')[0],
+        keep: [],
+        problem: [],
+        try: []
+      };
+
+      // 할일 데이터 구조
+      let todos = [];
+
+      // 로컬 스토리지에서 데이터 로드
+      function loadData() {
+        const date = document.getElementById('retro-date').value;
+        const saved = localStorage.getItem(`kpt_${userId}_${date}`);
+        if (saved) {
+          kptData = JSON.parse(saved);
+        } else {
+          kptData = {
+            date: date,
+            keep: [],
+            problem: [],
+            try: []
+          };
+        }
+        renderAll();
+        loadTodos();
+      }
+
+      // 할일 데이터 로드
+      function loadTodos() {
+        const today = new Date().toISOString().split('T')[0];
+        const saved = localStorage.getItem(`todos_${userId}_${today}`);
+        if (saved) {
+          todos = JSON.parse(saved);
+        } else {
+          todos = [];
+        }
+        renderTodos();
+      }
+
+      // 할일 데이터 저장
+      function saveTodos() {
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem(`todos_${userId}_${today}`, JSON.stringify(todos));
+      }
+
+      // 데이터 저장
+      function saveData() {
+        const date = document.getElementById('retro-date').value;
+        kptData.date = date;
+        localStorage.setItem(`kpt_${userId}_${date}`, JSON.stringify(kptData));
+      }
+
+      // 아이템 추가
+      function addItem(type) {
+        const input = document.getElementById(`${type}-input`);
+        const text = input.value.trim();
+        
+        if (text === '') {
+          alert('내용을 입력해주세요.');
+          return;
+        }
+
+        kptData[type].push({
+          id: Date.now(),
+          text: text,
+          createdAt: new Date().toISOString()
+        });
+
+        input.value = '';
+        saveData();
+        renderAll();
+        renderDateList();
+      }
+
+      // 아이템 삭제
+      function deleteItem(type, id) {
+        kptData[type] = kptData[type].filter(item => item.id !== id);
+        saveData();
+        renderAll();
+        renderDateList();
+      }
+
+      // 섹션 렌더링
+      function renderSection(type) {
+        const list = document.getElementById(`${type}-list`);
+        const items = kptData[type] || [];
+        const count = document.getElementById(`${type}-count`);
+
+        count.textContent = items.length;
+
+        if (items.length === 0) {
+          list.innerHTML = '<div class="empty-state">아직 항목이 없습니다.<br>위 입력창에 추가해보세요!</div>';
+          return;
+        }
+
+        list.innerHTML = items.map(item => `
+          <div class="item">
+            <div class="item-text">${escapeHtml(item.text)}</div>
+            <button class="item-delete" onclick="deleteItem('${type}', ${item.id})" title="삭제">×</button>
+          </div>
+        `).join('');
+      }
+
+      // 전체 렌더링
+      function renderAll() {
+        renderSection('keep');
+        renderSection('problem');
+        renderSection('try');
+      }
+
+      // 할일 추가
+      function addTodo() {
+        const input = document.getElementById('todo-input');
+        const text = input.value.trim();
+        
+        if (text === '') {
+          alert('할일을 입력해주세요.');
+          return;
+        }
+
+        todos.push({
+          id: Date.now(),
+          text: text,
+          completed: false,
+          createdAt: new Date().toISOString()
+        });
+
+        input.value = '';
+        saveTodos();
+        renderTodos();
+      }
+
+      // 할일 완료/미완료 토글
+      function toggleTodo(id) {
+        const todo = todos.find(t => t.id === id);
+        if (todo) {
+          todo.completed = !todo.completed;
+          saveTodos();
+          renderTodos();
+        }
+      }
+
+      // 할일 삭제
+      function deleteTodo(id) {
+        todos = todos.filter(t => t.id !== id);
+        saveTodos();
+        renderTodos();
+      }
+
+      // 할일 렌더링
+      function renderTodos() {
+        const list = document.getElementById('todo-list');
+        const stats = document.getElementById('todo-stats');
+        
+        const completedCount = todos.filter(t => t.completed).length;
+        const totalCount = todos.length;
+        stats.textContent = `${totalCount}개 중 ${completedCount}개 완료`;
+
+        if (todos.length === 0) {
+          list.innerHTML = '<div class="empty-state">할일이 없습니다.<br>위 입력창에 추가해보세요!</div>';
+          return;
+        }
+
+        list.innerHTML = todos.map(todo => `
+          <div class="todo-item ${todo.completed ? 'completed' : ''}">
+            <input
+              type="checkbox"
+              class="todo-checkbox"
+              ${todo.completed ? 'checked' : ''}
+              onchange="toggleTodo(${todo.id})"
+            />
+            <div class="todo-text">${escapeHtml(todo.text)}</div>
+            <button class="todo-delete" onclick="deleteTodo(${todo.id})" title="삭제">×</button>
+          </div>
+        `).join('');
+      }
+
+      // Try 항목을 할일로 변환
+      function convertTryToTodos() {
+        if (!kptData.try || kptData.try.length === 0) {
+          alert('변환할 Try 항목이 없습니다.');
+          return;
+        }
+
+        if (confirm(`Try 항목 ${kptData.try.length}개를 할일로 변환하시겠습니까?`)) {
+          const today = new Date().toISOString().split('T')[0];
+          
+          kptData.try.forEach(item => {
+            // 이미 같은 텍스트의 할일이 있는지 확인
+            const exists = todos.some(t => t.text === item.text);
+            if (!exists) {
+              todos.push({
+                id: Date.now() + Math.random(), // 고유 ID 생성
+                text: item.text,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                fromTry: true // Try에서 변환된 것임을 표시
+              });
+            }
+          });
+
+          saveTodos();
+          renderTodos();
+          showToast(`${kptData.try.length}개의 Try 항목이 할일로 변환되었습니다!`);
+        }
+      }
+
+      // HTML 이스케이프
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // 전체 삭제 (현재 날짜)
+      function clearAll() {
+        const date = document.getElementById('retro-date').value;
+        if (confirm(`현재 날짜(${date})의 모든 항목을 삭제하시겠습니까?`)) {
+          kptData = {
+            date: date,
+            keep: [],
+            problem: [],
+            try: []
+          };
+          saveData();
+          renderAll();
+          renderDateList();
+        }
+      }
+
+      // 클립보드로 복사
+      function copyToClipboard() {
+        const date = document.getElementById('retro-date').value;
+        const formatDate = (dateStr) => {
+          const date = new Date(dateStr);
+          return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        };
+
+        let text = `📝 KPT 회고 - ${formatDate(date)}\n`;
+        text += `${'='.repeat(40)}\n\n`;
+
+        if (kptData.keep.length > 0) {
+          text += `✅ Keep (유지할 것)\n`;
+          kptData.keep.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.text}\n`;
+          });
+          text += '\n';
+        }
+
+        if (kptData.problem.length > 0) {
+          text += `⚠️ Problem (문제점)\n`;
+          kptData.problem.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.text}\n`;
+          });
+          text += '\n';
+        }
+
+        if (kptData.try.length > 0) {
+          text += `🚀 Try (시도할 것)\n`;
+          kptData.try.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.text}\n`;
+          });
+          text += '\n';
+        }
+
+        // JSON 형식도 함께 제공
+        const jsonText = JSON.stringify(kptData, null, 2);
+        const fullText = `${text}\n${'='.repeat(40)}\n\n[JSON 형식]\n${jsonText}`;
+
+        navigator.clipboard.writeText(fullText).then(() => {
+          showToast('클립보드에 복사되었습니다!');
+        }).catch(() => {
+          // 클립보드 API가 지원되지 않는 경우 대체 방법
+          const textarea = document.createElement('textarea');
+          textarea.value = fullText;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast('클립보드에 복사되었습니다!');
+        });
+      }
+
+      // 토스트 메시지 표시
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2000);
+      }
+
+      // 날짜별 데이터 목록 가져오기
+      function getAllDates() {
+        const dates = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(`kpt_${userId}_`)) {
+            const date = key.replace(`kpt_${userId}_`, '');
+            try {
+              const data = JSON.parse(localStorage.getItem(key));
+              const totalCount = (data.keep?.length || 0) + 
+                                (data.problem?.length || 0) + 
+                                (data.try?.length || 0);
+              dates.push({
+                date: date,
+                count: totalCount,
+                data: data
+              });
+            } catch (e) {
+              // 무시
+            }
+          }
+        }
+        // 날짜순으로 정렬 (최신순)
+        return dates.sort((a, b) => new Date(b.date) - new Date(a.date));
+      }
+
+      // 날짜 목록 렌더링
+      function renderDateList() {
+        const dateList = document.getElementById('date-list');
+        const dates = getAllDates();
+
+        if (dates.length === 0) {
+          dateList.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">저장된 날짜가 없습니다.</div>';
+          return;
+        }
+
+        dateList.innerHTML = dates.map(item => {
+          const formatDate = (dateStr) => {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (dateStr === today.toISOString().split('T')[0]) {
+              return '오늘';
+            } else if (dateStr === yesterday.toISOString().split('T')[0]) {
+              return '어제';
+            } else {
+              return `${date.getMonth() + 1}/${date.getDate()}`;
+            }
+          };
+
+          return `
+            <div class="date-item">
+              <div class="date-item-info">
+                <div class="date-item-date">${formatDate(item.date)}</div>
+                <div class="date-item-count">${item.date} · 항목 ${item.count}개</div>
+              </div>
+              <div class="date-item-actions">
+                <button class="date-item-btn date-item-btn-copy" onclick="copyDateToClipboard('${item.date}')" title="복사">📋</button>
+                <button class="date-item-btn date-item-btn-delete" onclick="deleteDate('${item.date}')" title="삭제">🗑️</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 특정 날짜를 클립보드로 복사
+      function copyDateToClipboard(date) {
+        const saved = localStorage.getItem(`kpt_${userId}_${date}`);
+        if (!saved) {
+          showToast('데이터를 찾을 수 없습니다.');
+          return;
+        }
+
+        const data = JSON.parse(saved);
+        const formatDate = (dateStr) => {
+          const date = new Date(dateStr);
+          return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        };
+
+        let text = `📝 KPT 회고 - ${formatDate(date)}\n`;
+        text += `${'='.repeat(40)}\n\n`;
+
+        if (data.keep && data.keep.length > 0) {
+          text += `✅ Keep (유지할 것)\n`;
+          data.keep.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.text}\n`;
+          });
+          text += '\n';
+        }
+
+        if (data.problem && data.problem.length > 0) {
+          text += `⚠️ Problem (문제점)\n`;
+          data.problem.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.text}\n`;
+          });
+          text += '\n';
+        }
+
+        if (data.try && data.try.length > 0) {
+          text += `🚀 Try (시도할 것)\n`;
+          data.try.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.text}\n`;
+          });
+          text += '\n';
+        }
+
+        const jsonText = JSON.stringify(data, null, 2);
+        const fullText = `${text}\n${'='.repeat(40)}\n\n[JSON 형식]\n${jsonText}`;
+
+        navigator.clipboard.writeText(fullText).then(() => {
+          showToast(`${formatDate(date)} 데이터가 클립보드에 복사되었습니다!`);
+        }).catch(() => {
+          const textarea = document.createElement('textarea');
+          textarea.value = fullText;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast(`${formatDate(date)} 데이터가 클립보드에 복사되었습니다!`);
+        });
+      }
+
+      // 특정 날짜 데이터 삭제
+      function deleteDate(date) {
+        const formatDate = (dateStr) => {
+          const date = new Date(dateStr);
+          return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        };
+
+        if (confirm(`${formatDate(date)}의 데이터를 삭제하시겠습니까?`)) {
+          localStorage.removeItem(`kpt_${userId}_${date}`);
+          
+          // 현재 선택된 날짜라면 데이터 초기화
+          const currentDate = document.getElementById('retro-date').value;
+          if (currentDate === date) {
+            kptData = {
+              date: date,
+              keep: [],
+              problem: [],
+              try: []
+            };
+            renderAll();
+          }
+          
+          renderDateList();
+          showToast('데이터가 삭제되었습니다.');
+        }
+      }
+
+      // 데이터 내보내기
+      function exportData() {
+        const dataStr = JSON.stringify(kptData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `kpt_${kptData.date}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // 데이터 가져오기
+      function importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              try {
+                const imported = JSON.parse(event.target.result);
+                kptData = imported;
+                document.getElementById('retro-date').value = kptData.date;
+                saveData();
+                renderAll();
+                alert('데이터를 성공적으로 가져왔습니다!');
+              } catch (error) {
+                alert('파일 형식이 올바르지 않습니다.');
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      }
+
+      // Enter 키로 추가
+      document.getElementById('keep-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addItem('keep');
+      });
+
+      document.getElementById('problem-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addItem('problem');
+      });
+
+      document.getElementById('try-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addItem('try');
+      });
+
+      // 할일 입력창 Enter 키
+      document.getElementById('todo-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addTodo();
+      });
+
+      // 날짜 변경 시 데이터 로드
+      document.getElementById('retro-date').addEventListener('change', () => {
+        loadData();
+        renderDateList();
+      });
+
+      // 초기 로드
+      loadData();
+      renderDateList();
+    </script>
+  </body>
+</html>
+

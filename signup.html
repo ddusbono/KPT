@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f6fb;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .signup-card {
+        width: min(400px, 90vw);
+        background: #fff;
+        border-radius: 16px;
+        padding: 36px 32px 32px;
+        box-shadow: 0 14px 40px rgba(47, 111, 237, 0.16);
+      }
+
+      h1 {
+        font-size: 24px;
+        margin: 0 0 28px;
+        color: #1e2a3b;
+      }
+
+      label {
+        display: block;
+        font-size: 15px;
+        color: #4b5666;
+        margin-bottom: 6px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d7deea;
+        border-radius: 8px;
+        font-size: 16px; /* iOS 자동 줌 방지 */
+        outline: none;
+        margin-bottom: 18px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+      }
+
+      input:focus {
+        border-color: #2f6fed;
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.15);
+      }
+
+      .error-message {
+        color: #f44336;
+        font-size: 13px;
+        margin-top: -12px;
+        margin-bottom: 12px;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        background: linear-gradient(135deg, #2f6fed, #5f8df7);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        transition: transform 0.1s, box-shadow 0.2s;
+        margin-top: 8px;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(47, 111, 237, 0.25);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .helper {
+        margin-top: 14px;
+        font-size: 13px;
+        color: #6b778c;
+        text-align: center;
+      }
+
+      .helper a {
+        color: #2f6fed;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .helper a:hover {
+        text-decoration: underline;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0f1728;
+        }
+
+        .signup-card {
+          background: #1b2539;
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        h1 {
+          color: #f8f9fc;
+        }
+
+        label {
+          color: #c0c8d8;
+        }
+
+        input {
+          background: #131c2f;
+          border-color: #2d3a55;
+          color: #f8f9fc;
+        }
+
+        .helper {
+          color: #aab4ce;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .signup-card {
+          padding: 24px 20px;
+        }
+
+        h1 {
+          font-size: 20px;
+          margin-bottom: 20px;
+        }
+
+        input {
+          padding: 14px;
+          font-size: 16px;
+        }
+
+        button {
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="signup-card">
+      <h1>회원가입</h1>
+      <form id="signup-form">
+        <label for="name">이름</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="홍길동"
+          required
+          autocomplete="name"
+        />
+        <div class="error-message" id="name-error"></div>
+
+        <label for="username">아이디</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="사용할 아이디를 입력하세요"
+          required
+          autocomplete="username"
+          minlength="3"
+        />
+        <div class="error-message" id="username-error"></div>
+
+        <label for="email">이메일</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+          autocomplete="email"
+        />
+        <div class="error-message" id="email-error"></div>
+
+        <label for="password">비밀번호</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="••••••••"
+          required
+          minlength="6"
+          autocomplete="new-password"
+        />
+        <div class="error-message" id="password-error"></div>
+
+        <label for="password-confirm">비밀번호 확인</label>
+        <input
+          type="password"
+          id="password-confirm"
+          name="password-confirm"
+          placeholder="••••••••"
+          required
+          autocomplete="new-password"
+        />
+        <div class="error-message" id="password-confirm-error"></div>
+
+        <button type="submit">회원가입</button>
+      </form>
+
+      <p class="helper">
+        이미 계정이 있으신가요? <a href="login.html">로그인하기</a>
+      </p>
+    </main>
+
+    <script>
+      const form = document.getElementById('signup-form');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const passwordConfirmInput = document.getElementById('password-confirm');
+      const nameInput = document.getElementById('name');
+      const usernameInput = document.getElementById('username');
+
+      // 에러 메시지 표시
+      function showError(fieldId, message) {
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+        document.getElementById(fieldId).style.borderColor = '#f44336';
+      }
+
+      // 에러 메시지 숨기기
+      function hideError(fieldId) {
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        errorEl.classList.remove('show');
+        document.getElementById(fieldId).style.borderColor = '#d7deea';
+      }
+
+      // 아이디 중복 체크
+      function isUsernameExists(username) {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        return users.some(user => user.username === username);
+      }
+
+      // 이메일 중복 체크
+      function isEmailExists(email) {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        return users.some(user => user.email === email);
+      }
+
+      // 아이디 실시간 중복 체크
+      usernameInput.addEventListener('blur', () => {
+        const username = usernameInput.value.trim();
+        if (username.length >= 3) {
+          if (isUsernameExists(username)) {
+            showError('username', '이미 사용 중인 아이디입니다.');
+          } else {
+            hideError('username');
+          }
+        }
+      });
+
+      // 비밀번호 확인
+      passwordConfirmInput.addEventListener('input', () => {
+        if (passwordConfirmInput.value !== passwordInput.value) {
+          showError('password-confirm', '비밀번호가 일치하지 않습니다.');
+        } else {
+          hideError('password-confirm');
+        }
+      });
+
+      // 폼 제출
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // 모든 에러 메시지 초기화
+        ['name', 'username', 'email', 'password', 'password-confirm'].forEach(hideError);
+
+        const name = nameInput.value.trim();
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const passwordConfirm = passwordConfirmInput.value;
+
+        let hasError = false;
+
+        // 이름 검증
+        if (name.length < 2) {
+          showError('name', '이름은 2자 이상 입력해주세요.');
+          hasError = true;
+        }
+
+        // 아이디 검증
+        if (username.length < 3) {
+          showError('username', '아이디는 3자 이상 입력해주세요.');
+          hasError = true;
+        } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          showError('username', '아이디는 영문, 숫자, 언더스코어(_)만 사용할 수 있습니다.');
+          hasError = true;
+        } else if (isUsernameExists(username)) {
+          showError('username', '이미 사용 중인 아이디입니다.');
+          hasError = true;
+        }
+
+        // 이메일 검증
+        if (!email.includes('@')) {
+          showError('email', '올바른 이메일 형식을 입력해주세요.');
+          hasError = true;
+        } else if (isEmailExists(email)) {
+          showError('email', '이미 사용 중인 이메일입니다.');
+          hasError = true;
+        }
+
+        // 비밀번호 검증
+        if (password.length < 6) {
+          showError('password', '비밀번호는 6자 이상 입력해주세요.');
+          hasError = true;
+        }
+
+        // 비밀번호 확인 검증
+        if (password !== passwordConfirm) {
+          showError('password-confirm', '비밀번호가 일치하지 않습니다.');
+          hasError = true;
+        }
+
+        if (hasError) {
+          return;
+        }
+
+        // 사용자 정보 저장
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const newUser = {
+          id: Date.now(),
+          name: name,
+          username: username,
+          email: email,
+          password: password, // 실제로는 해시화해야 하지만, 데모용으로 평문 저장
+          createdAt: new Date().toISOString()
+        };
+
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+
+        // 회원가입 성공 메시지
+        alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
+        window.location.href = 'KPT/login.html';
+      });
+    </script>
+  </body>
+</html>
+
